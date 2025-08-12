@@ -1,0 +1,15 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "incomeEntries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "entry_date",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
