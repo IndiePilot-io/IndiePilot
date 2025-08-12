@@ -1,250 +1,106 @@
-// src/pages/Dashboard.tsx
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { collection, query, onSnapshot } from 'firebase/firestore';
-import { db } from '../services/firebase';
-// Check if the component exists at this path
-// If not, we'll need to create it or adjust the path
-import { 
-  FileText, 
-  FileSignature, 
-  Brain, 
-  LogOut,
-  Settings,
-  DollarSign,
-  Users,
-  BarChart3,
-  Plus,
-  TrendingUp
-} from 'lucide-react';
+// src/pages/Dashboard.tsx - Updated version with Invoice Generator
+
+import React from 'react';
+import IncomeTracker from '../components/Dashboard/IncomeTracker';
+import InvoiceGenerator from '../components/Dashboard/InvoiceGenerator';
+// Import other components as they're created
+// import ContractGenerator from '../components/Dashboard/ContractGenerator';
+// import AIAssistant from '../components/Dashboard/AIAssistant';
 
 const Dashboard: React.FC = () => {
-  const { currentUser, logout } = useAuth();
-  const [stats, setStats] = useState({
-    totalIncome: 0,
-    invoiceCount: 0,
-    contractCount: 0,
-    clientCount: 0
-  });
-
-  // Load stats
-  useEffect(() => {
-    if (!currentUser) return;
-
-    // Listen to income entries for total
-    const incomeQuery = query(collection(db, `users/${currentUser.uid}/incomeEntries`));
-    const unsubscribeIncome = onSnapshot(incomeQuery, (snapshot) => {
-      let total = 0;
-      snapshot.forEach((doc) => {
-        total += doc.data().amount || 0;
-      });
-      setStats(prev => ({ ...prev, totalIncome: total }));
-    });
-
-    return () => {
-      unsubscribeIncome();
-    };
-  }, [currentUser]);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Failed to log out:', error);
-    }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-blue-600">IndiePilot</h1>
-              <span className="ml-4 text-sm text-gray-500">
-                Welcome, {currentUser?.email}
-              </span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                <Settings className="w-5 h-5" />
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex items-center text-gray-600 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-colors"
-              >
-                <LogOut className="w-5 h-5" />
-                <span className="ml-2 hidden sm:inline">Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow p-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
+        
+        {/* Stats Grid - Optional, can be added later */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Income</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {formatCurrency(stats.totalIncome)}
-                </p>
+                <p className="text-2xl font-bold">$0.00</p>
               </div>
-              <DollarSign className="w-8 h-8 text-green-500" />
+              <div className="text-green-500">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
             </div>
           </div>
           
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Invoices</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.invoiceCount}</p>
+                <p className="text-2xl font-bold">0</p>
               </div>
-              <FileText className="w-8 h-8 text-blue-500" />
+              <div className="text-blue-500">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
             </div>
           </div>
           
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Contracts</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.contractCount}</p>
+                <p className="text-2xl font-bold">0</p>
               </div>
-              <FileSignature className="w-8 h-8 text-purple-500" />
+              <div className="text-purple-500">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Main Dashboard Widgets */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Income Tracker */}
+          <div className="lg:col-span-1">
+            <IncomeTracker />
+          </div>
+          
+          {/* Invoice Generator */}
+          <div className="lg:col-span-1">
+            <InvoiceGenerator />
+          </div>
+          
+          {/* Contract Generator - Placeholder */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center mb-4">
+                <svg className="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <h2 className="text-lg font-semibold">Contract Generator</h2>
+              </div>
+              <p className="text-gray-500 text-center py-8">
+                Contract Generator coming soon...
+              </p>
             </div>
           </div>
           
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Clients</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.clientCount}</p>
+          {/* AI Assistant - Placeholder */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center mb-4">
+                <svg className="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                <h2 className="text-lg font-semibold">AI Assistant</h2>
               </div>
-              <Users className="w-8 h-8 text-orange-500" />
-            </div>
-          </div>
-        </div>
-
-        {/* Main Widgets Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Income Tracker Widget - Inline for now */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <TrendingUp className="w-5 h-5 text-green-600 mr-2" />
-                  <h2 className="text-lg font-semibold">Income Tracker</h2>
-                </div>
-                <button className="flex items-center text-sm bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 transition-colors">
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Entry
-                </button>
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="text-center py-4">
-                <p className="text-3xl font-bold text-green-600 mb-2">
-                  {formatCurrency(stats.totalIncome)}
-                </p>
-                <p className="text-gray-500">
-                  Total income tracked
-                </p>
-                <p className="text-sm text-gray-400 mt-2">
-                  Click "Add Entry" to start tracking your income
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Invoice Generator Widget */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <FileText className="w-5 h-5 text-blue-600 mr-2" />
-                  <h2 className="text-lg font-semibold">Invoice Generator</h2>
-                </div>
-                <button className="flex items-center text-sm bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 transition-colors">
-                  <Plus className="w-4 h-4 mr-1" />
-                  New Invoice
-                </button>
-              </div>
-            </div>
-            <div className="p-6">
               <p className="text-gray-500 text-center py-8">
-                Create professional invoices for your clients.
-              </p>
-            </div>
-          </div>
-
-          {/* Contract Generator Widget */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <FileSignature className="w-5 h-5 text-purple-600 mr-2" />
-                  <h2 className="text-lg font-semibold">Contract Generator</h2>
-                </div>
-                <button className="flex items-center text-sm bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 transition-colors">
-                  <Plus className="w-4 h-4 mr-1" />
-                  New Contract
-                </button>
-              </div>
-            </div>
-            <div className="p-6">
-              <p className="text-gray-500 text-center py-8">
-                Generate service agreements and contracts.
-              </p>
-            </div>
-          </div>
-
-          {/* AI Assistant Widget */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <Brain className="w-5 h-5 text-indigo-600 mr-2" />
-                  <h2 className="text-lg font-semibold">AI Assistant</h2>
-                </div>
-                <button className="flex items-center text-sm bg-indigo-600 text-white px-3 py-1.5 rounded hover:bg-indigo-700 transition-colors">
-                  Ask Question
-                </button>
-              </div>
-            </div>
-            <div className="p-6">
-              <p className="text-gray-500 text-center py-8">
-                Ask business questions and get AI-powered answers.
+                AI Assistant coming soon...
               </p>
             </div>
           </div>
         </div>
-
-        {/* Recent Activity */}
-        <div className="mt-8 bg-white rounded-lg shadow">
-          <div className="p-6 border-b">
-            <div className="flex items-center">
-              <BarChart3 className="w-5 h-5 text-gray-600 mr-2" />
-              <h2 className="text-lg font-semibold">Recent Activity</h2>
-            </div>
-          </div>
-          <div className="p-6">
-            <p className="text-gray-500 text-center py-4">
-              Your recent activities will appear here.
-            </p>
-          </div>
-        </div>
-      </main>
+      </div>
     </div>
   );
 };

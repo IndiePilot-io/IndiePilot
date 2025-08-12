@@ -5,7 +5,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "entry_date",
+          "fieldPath": "date",
           "order": "DESCENDING"
         }
       ]
