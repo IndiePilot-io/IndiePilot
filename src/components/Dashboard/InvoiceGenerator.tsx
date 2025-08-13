@@ -21,7 +21,7 @@ import {
   Mail,
   DollarSign
 } from 'lucide-react';
-import { generateInvoicePDF } from '../../components/Dashboard/pdf';
+import { generateInvoicePDF } from './pdf';
 
 interface InvoiceItem {
   id: string;
@@ -63,7 +63,6 @@ const InvoiceGenerator: React.FC = () => {
   ]);
   const [notes, setNotes] = useState('');
   const [terms, setTerms] = useState('');
-  const [syncToIncome, setSyncToIncome] = useState(false);
 
   // Load company profile
   useEffect(() => {
@@ -209,7 +208,7 @@ const InvoiceGenerator: React.FC = () => {
         total,
         notes,
         terms,
-        status: 'pending',
+        status: 'draft', // Start as draft, not pending
         createdAt: serverTimestamp(),
         companyProfile
       };
@@ -240,22 +239,6 @@ const InvoiceGenerator: React.FC = () => {
         terms
       });
 
-      // Optionally sync to income tracker
-      if (syncToIncome) {
-        await addDoc(
-          collection(db, `users/${currentUser.uid}/incomeEntries`),
-          {
-            amount: total,
-            description: `Invoice ${invoiceNumber} - ${clientName}`,
-            date: issueDate,
-            category: 'service',
-            invoice_reference: invoiceNumber,
-            createdAt: serverTimestamp()
-          }
-        );
-        console.log('Synced to income tracker');
-      }
-
       // Reset form
       setClientName('');
       setClientEmail('');
@@ -263,7 +246,7 @@ const InvoiceGenerator: React.FC = () => {
       setItems([{ id: '1', description: '', quantity: 1, rate: 0, amount: 0 }]);
       setShowForm(false);
       
-      alert(`Invoice ${invoiceNumber} generated successfully!`);
+      alert(`Invoice ${invoiceNumber} generated successfully! Check the Invoice Management section below to send it to your client.`);
     } catch (error) {
       console.error('Error generating invoice:', error);
       alert('Failed to generate invoice: ' + (error as Error).message);
@@ -507,20 +490,6 @@ const InvoiceGenerator: React.FC = () => {
             </div>
           </div>
 
-          {/* Sync to Income Tracker */}
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="syncToIncome"
-              checked={syncToIncome}
-              onChange={(e) => setSyncToIncome(e.target.checked)}
-              className="mr-2"
-            />
-            <label htmlFor="syncToIncome" className="text-sm text-gray-700">
-              Add to Income Tracker when paid
-            </label>
-          </div>
-
           {/* Actions */}
           <div className="flex justify-end space-x-3">
             <button
@@ -551,7 +520,7 @@ const InvoiceGenerator: React.FC = () => {
       {!showForm && (
         <div className="p-6">
           <p className="text-gray-500 text-center">
-            Create professional invoices for your clients
+            Create professional invoices for your clients. Invoices will be saved as drafts and can be emailed from the Invoice Management section.
           </p>
         </div>
       )}
